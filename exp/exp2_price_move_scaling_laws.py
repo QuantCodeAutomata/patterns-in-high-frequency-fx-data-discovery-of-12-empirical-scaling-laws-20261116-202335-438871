@@ -60,9 +60,16 @@ def run(full: bool) -> None:
     thresholds = threshold_grid(config.N_THRESHOLD_POINTS, config.THRESHOLD_MIN_PCT, config.THRESHOLD_MAX_PCT)
     tick_events = reference_tick_events(prices, times, config.TICK_DEFINITION_PCT)
 
+    # As in experiments 1, 4 and 5, the GRW benchmark series (the only series
+    # available in place of the unobtainable tick-by-tick FX quotes) spans
+    # only ~11.6 days; dividing law (2)'s raw count by that elapsed fraction
+    # of a year would extrapolate it by a factor of ~31.5 rather than match
+    # the paper's own published GRW table (section 4). The raw total is used
+    # instead, as for laws (0b) and (12).
     sample_years = sample_years_from_times(times, config.SECONDS_PER_YEAR)
-    log.info("Annualisation divisor (elapsed sample years): %.6f", sample_years)
-    table = laws_1_2_4_table(prices, times, thresholds, tick_events, sample_years)
+    log.info("Elapsed sample years of the GRW series: %.6f (not used as the divisor)", sample_years)
+    grw_count_divisor = 1.0
+    table = laws_1_2_4_table(prices, times, thresholds, tick_events, grw_count_divisor)
     table.to_csv(RESULTS_DIR / "exp2_price_move_table.csv", index=False)
 
     fit_df = fit_columns(table, "threshold_pct", ["mean_nticks", "n_annualized", "mean_dt"])
@@ -71,9 +78,17 @@ def run(full: bool) -> None:
     log.info("Fitted laws (1,2,4):\n%s", fit_df.to_string(index=False))
 
     # Research objective: inverse relationship between laws (2) and (4),
-    # eq. (14): E_t,x = -E_N,x, C_t,x = Y^(1/E_N,x) * C_N,x.
-    law2 = fit_df.loc[fit_df["law"] == "law_2_N_x"].iloc[0]
-    law4 = fit_df.loc[fit_df["law"] == "law_4_t_x"].iloc[0]
+    # eq. (14): E_t,x = -E_N,x, C_t,x = Y^(1/E_N,x) * C_N,x. Eq. (14) is an
+    # identity between Y/N(Delta_x) and the directly measured <Delta t_x>; it
+    # only holds numerically when N(Delta_x) is annualised by the series'
+    # own elapsed time (Y * sample_years / T = 1), not by the raw-total
+    # convention used above for the GRW-table comparison. So this check
+    # refits law (2) with the proper annualisation divisor, independent of
+    # the displayed table.
+    annualized_table = laws_1_2_4_table(prices, times, thresholds, tick_events, sample_years)
+    annualized_fits = fit_columns(annualized_table, "threshold_pct", ["n_annualized", "mean_dt"])
+    law2 = annualized_fits.iloc[0]
+    law4 = annualized_fits.iloc[1]
     e_check, c_check = check_14(law2["E"], law2["C"], config.SECONDS_PER_YEAR, law4["E"], law4["C"])
     consistency = {
         "E_predicted": e_check.predicted, "E_measured": e_check.measured, "E_rel_error": e_check.rel_error,

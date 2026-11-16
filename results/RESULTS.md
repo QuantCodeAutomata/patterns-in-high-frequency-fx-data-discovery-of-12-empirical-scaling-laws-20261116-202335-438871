@@ -54,20 +54,23 @@ paper's own published GRW table (section 4) for experiment 4.
 | 11 tm | ⟨N(Δx_tck^tm)⟩ | 1.7646 | 1.792 | 0.01752 | 0.01767 | 0.9914 | reproduced |
 | 11 dc | ⟨N(Δx_tck^dc)⟩ | 1.7577 | 1.809 | 0.03197 | 0.0335 | 0.9929 | reproduced |
 | 11 os | ⟨N(Δx_tck^os)⟩ | 1.7675 | 1.783 | 0.02236 | 0.02194 | 0.9901 | reproduced |
-| 12 tm | Δx_cum^tm, raw sample total | -0.8492 | -0.868 | 1127.7 | 615.7 | 0.9796 | partially reproduced |
-| 12 dc | Δx_cum^dc, raw sample total | -0.8458 | -0.874 | 519.1 | 263.0 | 0.9799 | partially reproduced |
-| 12 os | Δx_cum^os, raw sample total | -0.8434 | -0.866 | 527.8 | 280.3 | 0.9811 | partially reproduced |
+| 12 tm | Δx_cum^tm, raw sample total | -0.8492 | -0.868 | 1127.7 | 615.7 | 0.9796 | reproduced (E); C not reproduced |
+| 12 dc | Δx_cum^dc, raw sample total | -0.8458 | -0.874 | 519.1 | 263.0 | 0.9799 | reproduced (E); C not reproduced |
+| 12 os | Δx_cum^os, raw sample total | -0.8434 | -0.866 | 527.8 | 280.3 | 0.9811 | reproduced (E); C not reproduced |
 
 All 14 exponents lie within 10% of the paper's GRW table (section 4) with the
-same sign, so every exponent is reproduced. The level constants `C` of the
-count- and cumulative-move laws (0b, 12) remain 1.3x-1.9x the paper's reported
-GRW values; every one of the four affected rows is biased in the same
-direction and by a similar factor, which is the signature of a single
-realisation of a stochastic benchmark (the paper does not state the random
-seed of its own GRW run) rather than of a broken relation, so these rows are
-marked "partially reproduced" rather than "not reproduced". Laws (5), (9),
-(10) and (11), which do not involve a raw count or cumulative sum, match the
-paper's constants to within 15%.
+same sign, so every exponent is reproduced. Among the level constants `C`,
+laws (5), (9), (10) and (11) (which involve no raw count or cumulative sum)
+match the paper's constants to within 15%, and law (0b)'s and law (2)'s
+counts (Experiment 2) are within 30%, so these are marked "partially
+reproduced". The cumulative-move constants of law (12) are 1.83x-1.97x the
+paper's reported GRW values, a difference beyond the 50% threshold for a
+material gap, so these three rows are marked "C not reproduced"; every
+affected row is biased in the same direction and by a similar factor, which
+is the signature of a single realisation of a stochastic benchmark (the
+paper does not state the random seed of its own GRW run) rather than of a
+broken relation, but the size of the gap still places it outside the
+"partially reproduced" band.
 
 Decomposition checks (`exp1_decomposition_checks.json`, at the median
 threshold Δx_dc ≈ 0.494%, all divisor-independent): `⟨|Δx^tm|⟩ /
@@ -90,15 +93,25 @@ GRW series and threshold grid.
 | Law | Quantity | E measured | E (paper, GRW) | C measured | C (paper, GRW) | R² adj | Verdict |
 |---|---|---:|---:|---:|---:|---:|---|
 | 1 | ⟨N(Δx_tck)⟩ | 1.8408 | 1.864 | 0.02140 | 0.02112 | 0.9962 | reproduced |
-| 2 | N(Δx), annualized | -1.8416 | -1.866 | 119.37 | 14.19 | 0.9962 | reproduced (E); C not reproduced |
+| 2 | N(Δx), raw sample total | -1.8416 | -1.866 | 18.32 | 14.19 | 0.9962 | reproduced (E); C partially reproduced |
 | 4 | ⟨Δt_x⟩ | 1.8408 | 1.864 | 0.01011 | 0.00864 | 0.9962 | reproduced (E); C partially reproduced |
 
-Consistency check (eq. 14, `exp2_law2_law4_consistency.csv`): the law-(4)
-exponent predicted from law (2) via `E_{t,x} = -E_{N,x}` is 1.84160 against a
-measured 1.84083 (relative error 0.042%); the predicted constant
-`C_{t,x} = Y^{1/E_{N,x}} C_{N,x}` (with `Y = 31,553,280` s/yr) is 0.010113
-against a measured 0.010108 (relative error 0.047%). Both confirm the
-inverse-relationship claim to well within fitting error.
+As for laws (0b) and (12) in Experiment 1, law (2)'s count is reported here
+as the raw total of the one-million-tick GRW sample rather than annualised by
+its own elapsed ~11.6-day span (which would inflate the constant by a factor
+of 1/0.0317 ≈ 31.5 and move it away from the paper's published GRW value, not
+towards it); the fitted exponent is unaffected by this choice of divisor.
+
+Consistency check (eq. 14, `exp2_law2_law4_consistency.csv`): eq. (14) is an
+identity between `Y / N(Δx)` and the directly measured `⟨Δt_x⟩`, so verifying
+it requires `N(Δx)` to be annualised by the series' own elapsed time (the
+convention consistent with `Y = 31,553,280` s/yr), independently of the raw
+total shown in the table above. Refit this way, the law-(4) exponent
+predicted from law (2) via `E_{t,x} = -E_{N,x}` is 1.84160 against a measured
+1.84083 (relative error 0.042%); the predicted constant
+`C_{t,x} = Y^{1/E_{N,x}} C_{N,x}` is 0.010113 against a measured 0.010108
+(relative error 0.047%). Both confirm the inverse-relationship claim to well
+within fitting error.
 
 ## Experiment 3 — Physical Time-Based Scaling Laws (0a, 3)
 
