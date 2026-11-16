@@ -1,0 +1,9 @@
+numpy
+pandas
+scipy
+statsmodels
+numba
+matplotlib
+requests
+python-dotenv
+pytest
