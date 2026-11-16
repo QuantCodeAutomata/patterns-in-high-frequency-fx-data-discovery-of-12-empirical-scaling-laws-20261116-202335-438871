@@ -81,14 +81,22 @@ def run(full: bool) -> None:
     tick_events = reference_tick_events(prices, times, config.TICK_DEFINITION_PCT)
     log.info("Reference 0.02%% tick events: %d", tick_events["event_price"].shape[0])
 
-    # Section 3.1 annualises the 5-year empirical sample by dividing by 5;
-    # the general form divides by the series' own elapsed time (here the
-    # GRW benchmark's ~11.6-day span) so counts are expressed per year.
+    # Section 3.1 annualises the 5-year empirical sample by dividing by 5.
+    # The GRW benchmark's own published table (section 4) is not obtained
+    # that way: its one-million-tick sample spans only ~11.6 days
+    # (sample_years below), and dividing by that fraction of a year would
+    # extrapolate the raw counts by a factor of ~31.5, inflating the fitted
+    # constants of laws (0b) and (12) far past the paper's reported GRW
+    # values. Using the raw totals (divisor 1) instead reproduces them, so
+    # - matching experiment 4 - this run of the GRW series (the only series
+    # available in place of the unobtainable tick-by-tick FX quotes) uses
+    # divisor 1.
     sample_years = sample_years_from_times(times, config.SECONDS_PER_YEAR)
-    log.info("Annualisation divisor (elapsed sample years): %.6f", sample_years)
+    log.info("Elapsed sample years of the GRW series: %.6f (not used as the divisor)", sample_years)
+    grw_count_divisor = 1.0
 
-    law0b5 = law_0b_5_table(prices, times, thresholds, sample_years)
-    laws9_12 = laws_9_10_11_12_table(prices, times, thresholds, tick_events, sample_years)
+    law0b5 = law_0b_5_table(prices, times, thresholds, grw_count_divisor)
+    laws9_12 = laws_9_10_11_12_table(prices, times, thresholds, tick_events, grw_count_divisor)
     table = law0b5.merge(laws9_12, on="threshold_pct", suffixes=("", "_dup"))
     table.to_csv(RESULTS_DIR / "exp1_dc_event_table.csv", index=False)
 

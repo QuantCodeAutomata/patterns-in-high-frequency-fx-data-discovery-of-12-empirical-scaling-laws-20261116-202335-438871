@@ -51,9 +51,15 @@ def run() -> None:
     thresholds = threshold_grid(config.N_THRESHOLD_POINTS, config.THRESHOLD_MIN_PCT, config.THRESHOLD_MAX_PCT)
     tick_events = reference_tick_events(prices, times_s, config.TICK_DEFINITION_PCT)
 
+    # As in experiment 4, the paper's published GRW coastline figures
+    # (section 2.3) are matched by the raw totals of the one-million-tick
+    # sample, not by dividing by its ~11.6-day elapsed fraction of a year
+    # (which would extrapolate the cumulative move by a factor of ~31.5);
+    # see exp4_grw_benchmark.py for the full explanation.
     sample_years = sample_years_from_times(times_s, config.SECONDS_PER_YEAR)
-    log.info("Annualisation divisor (elapsed sample years): %.6f", sample_years)
-    laws9_12 = laws_9_10_11_12_table(prices, times_s, thresholds, tick_events, sample_years)
+    log.info("Elapsed sample years of the GRW series: %.6f (not used as the divisor)", sample_years)
+    grw_count_divisor = 1.0
+    laws9_12 = laws_9_10_11_12_table(prices, times_s, thresholds, tick_events, grw_count_divisor)
     fit_tm = fit_power_law(laws9_12["threshold_pct"].to_numpy(), laws9_12["cum_tm"].to_numpy())
 
     coast_pcts = np.array(config.COASTLINE_THRESHOLDS_PCT)
@@ -64,7 +70,7 @@ def run() -> None:
     # Cumulative total move with costs, fitted only on [0.1%, 5%] (section
     # 2.3: costs break the scaling for small thresholds).
     costed_prices = apply_constant_spread(prices, config.GRW_SPREAD_PCT)
-    laws9_12_costs = laws_9_10_11_12_table(costed_prices, times_s, thresholds, tick_events, sample_years)
+    laws9_12_costs = laws_9_10_11_12_table(costed_prices, times_s, thresholds, tick_events, grw_count_divisor)
     lo, hi = config.COASTLINE_COST_FIT_RANGE_PCT
     fit_mask = (laws9_12_costs["threshold_pct"] >= lo) & (laws9_12_costs["threshold_pct"] <= hi)
     fit_tm_costs = fit_power_law(

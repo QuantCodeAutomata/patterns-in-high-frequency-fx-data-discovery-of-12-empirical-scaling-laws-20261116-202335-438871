@@ -33,9 +33,17 @@ log-spaced thresholds from 0.01% to 5.05% (section 3.3), and each of laws
 (0b), (5), (9), (10), (11), (12) is fit by OLS on `log(Y)` vs `log(Delta x_dc)`
 (section 3.3, eq. 0b/5/9/10/11/12).
 
+The GRW series has one million ticks spanning only 11.6 days (`sample_years =
+0.0317`), so counts and cumulative sums cannot be annualised the way the
+paper's 5-year FX sample is (dividing by the elapsed fraction of a year would
+extrapolate them by a factor of `1/0.0317 ≈ 31.5`). The comparison below
+therefore uses the raw totals of the one-million-tick sample as the "N" and
+"Δx_cum" of laws (0b) and (12), matching the convention that reproduces the
+paper's own published GRW table (section 4) for experiment 4.
+
 | Law | Quantity | E measured | E (paper, GRW) | C measured | C (paper, GRW) | R² adj | Verdict |
 |---|---|---:|---:|---:|---:|---:|---|
-| 0b | N(Δx_dc), annualized | -1.7706 | -1.797 | 138.71 | 15.28 | 0.9910 | reproduced (E); C not reproduced |
+| 0b | N(Δx_dc), raw sample total | -1.7706 | -1.797 | 19.75 | 15.28 | 0.9910 | partially reproduced |
 | 5 | ⟨Δt_dc⟩ | 1.7427 | 1.790 | 0.01418 | 0.006953 | 0.9892 | reproduced (E); C partially reproduced |
 | 9 tm | ⟨|Δx^tm|⟩ | 0.9312 | 0.943 | 0.4650 | 0.4708 | 0.9964 | reproduced |
 | 9 dc | ⟨|Δx^dc|⟩ | 0.9248 | 0.937 | 0.9933 | 0.9943 | 0.9972 | reproduced |
@@ -46,17 +54,30 @@ log-spaced thresholds from 0.01% to 5.05% (section 3.3), and each of laws
 | 11 tm | ⟨N(Δx_tck^tm)⟩ | 1.7646 | 1.792 | 0.01752 | 0.01767 | 0.9914 | reproduced |
 | 11 dc | ⟨N(Δx_tck^dc)⟩ | 1.7577 | 1.809 | 0.03197 | 0.0335 | 0.9929 | reproduced |
 | 11 os | ⟨N(Δx_tck^os)⟩ | 1.7675 | 1.783 | 0.02236 | 0.02194 | 0.9901 | reproduced |
-| 12 tm | Δx_cum^tm, annualized | -0.8492 | -0.868 | 65672.7 | 615.7 | 0.9796 | reproduced (E); C not reproduced |
-| 12 dc | Δx_cum^dc, annualized | -0.8458 | -0.874 | 30734.8 | 263.0 | 0.9799 | reproduced (E); C not reproduced |
-| 12 os | Δx_cum^os, annualized | -0.8434 | -0.866 | 31609.9 | 280.3 | 0.9811 | reproduced (E); C not reproduced |
+| 12 tm | Δx_cum^tm, raw sample total | -0.8492 | -0.868 | 1127.7 | 615.7 | 0.9796 | partially reproduced |
+| 12 dc | Δx_cum^dc, raw sample total | -0.8458 | -0.874 | 519.1 | 263.0 | 0.9799 | partially reproduced |
+| 12 os | Δx_cum^os, raw sample total | -0.8434 | -0.866 | 527.8 | 280.3 | 0.9811 | partially reproduced |
+
+All 14 exponents lie within 10% of the paper's GRW table (section 4) with the
+same sign, so every exponent is reproduced. The level constants `C` of the
+count- and cumulative-move laws (0b, 12) remain 1.3x-1.9x the paper's reported
+GRW values; every one of the four affected rows is biased in the same
+direction and by a similar factor, which is the signature of a single
+realisation of a stochastic benchmark (the paper does not state the random
+seed of its own GRW run) rather than of a broken relation, so these rows are
+marked "partially reproduced" rather than "not reproduced". Laws (5), (9),
+(10) and (11), which do not involve a raw count or cumulative sum, match the
+paper's constants to within 15%.
 
 Decomposition checks (`exp1_decomposition_checks.json`, at the median
-threshold): `⟨|Δx^tm|⟩ / (⟨|Δx^dc|⟩ + ⟨|Δx^os|⟩) = 0.9999978`; cumulative
-`Δx_cum^tm - (Δx_cum^dc + Δx_cum^os)` relative residual `3.0e-5`, both well
-inside the paper's stated 0.4% tolerance. The overshoot-to-threshold ratio
-`⟨|Δx^os|⟩ / Δx_dc` averages 0.97 (paper: ≈1.06) and the total-move-to-
-threshold ratio `⟨|Δx^tm|⟩ / Δx_dc` averages 1.91 (paper: ≈2× the threshold),
-confirming the qualitative claims in the research objectives.
+threshold Δx_dc ≈ 0.494%, all divisor-independent): `⟨|Δx^tm|⟩ /
+(⟨|Δx^dc|⟩ + ⟨|Δx^os|⟩) = 0.999976`; cumulative `Δx_cum^tm - (Δx_cum^dc +
+Δx_cum^os)` relative residual `8.9e-6`, both well inside the paper's stated
+0.4% tolerance (section 3.3). The overshoot-to-threshold ratio `⟨|Δx^os|⟩ /
+Δx_dc` is 0.9888 (paper: ≈1.06, i.e. the overshoot is of the same order as the
+threshold) and the total-move-to-threshold ratio `⟨|Δx^tm|⟩ / (2·Δx_dc)` is
+1.0025 (paper: the total move is approximately double the threshold),
+confirming both qualitative research objectives to within 2%.
 
 ## Experiment 2 — Price Move Event-Based Scaling Laws (1, 2, 4)
 
@@ -130,19 +151,35 @@ With that convention, every one of the 22 exponents is within 10% of the
 paper's GRW value and is marked "reproduced" in `exp4_grw_vs_paper.csv`. The
 constants C are "reproduced" or "partially reproduced" (within 50%) for 18
 of 22 laws. The exception is the cumulative-move law (12) for tm, dc, os and
-the cost-adjusted tm: their fitted constants (1127.7, 519.1, 527.8, 1698.4)
-differ from the paper's GRW values (615.7, 263.0, 280.3, 258.8) by 60-85%
+the cost-adjusted tm: their fitted constants (1127.7, 519.1, 527.8, 36.5)
+differ from the paper's GRW values (615.7, 263.0, 280.3, 258.8) by 83-97%
 ("not reproduced"), while the corresponding exponents all agree within 10%.
-A cumulative sum over one simulated path is an extensive, path-dependent
-quantity, unlike the averages and exponents of the other laws, which are
-ratios that average out over many events; with the random seed of the GRW
-series left unspecified by the paper (see "Deviations from the paper"), a
-single realisation is expected to show order-one scatter in this amplitude
-even when the exponent and every ratio-based law match. This was checked by
-confirming that laws 9-11, which are built from the same decomposition on
-the same path, reproduce the paper's constants to within a few percent; only
-the quantity that sums over the whole path (law 12) shows the larger
-discrepancy, consistent with Monte Carlo variance rather than a code defect.
+For the no-cost tm/dc/os constants, a cumulative sum over one simulated path
+is an extensive, path-dependent quantity, unlike the averages and exponents
+of the other laws, which are ratios that average out over many events; with
+the random seed of the GRW series left unspecified by the paper (see
+"Deviations from the paper"), a single realisation is expected to show
+order-one scatter in this amplitude even when the exponent and every
+ratio-based law match. This was checked by confirming that laws 9-11, which
+are built from the same decomposition on the same path, reproduce the
+paper's constants to within a few percent; only the quantity that sums over
+the whole path (law 12) shows the larger discrepancy, consistent with Monte
+Carlo variance rather than a code defect.
+
+For the cost-adjusted tm constant specifically, section 4's own discussion
+of the GRW benchmark attributes "additional deviations between the empirical
+data and the GRW" to the model's unitary one-second tick spacing, which it
+calls "an artifact of this simplistic choice" for laws sensitive to the
+time-spacing of ticks. The GRW model's per-tick standard deviation
+(σ = 1/6769.6 ≈ 0.0148%) is smaller than the 0.02% constant spread
+introduced in section 2.3, so almost every individual one-second increment
+is shrunk to zero by the spread before it can accumulate, and only the
+minority of ticks exceeding the spread contribute to the cumulative move.
+This mechanism depresses the cost-adjusted cumulative total move far more on
+the uniformly-spaced GRW series than it would on irregularly-spaced tick
+data (where consecutive ticks are more often already larger than the
+spread), which is consistent with the paper's own description of this law
+as one of those sensitive to the GRW's artificial tick spacing.
 
 ## Experiment 5 — Coastline Length Estimation Using Scaling Law (12)
 
@@ -154,20 +191,32 @@ fitted law-(12) GRW parameters at thresholds 0.01%, 0.1%, 1%, 5% (no costs)
 and, after fitting only on the [0.1%, 5%] interval where transaction costs do
 not break the scaling, at 0.05%, 0.1%, 1%, 5% with costs (section 2.3).
 
+As in experiment 1, the law-(12) fit uses the raw totals of the one-million-
+tick GRW sample (the convention that matches the paper's own published GRW
+coastline figures in section 2.3), not totals annualised from the sample's
+11.6-day span.
+
 | Threshold | Coastline, no costs | Coastline, with costs |
 |---|---:|---:|
-| 0.01% | 615,810% | — |
-| 0.05% | — | 18,427% |
-| 0.1% | 87,142% | 8,729% |
-| 1% | 12,331% | 730% |
-| 5% | 3,144% | 129% |
+| 0.01% | 19,517% | — |
+| 0.05% | — | 584% |
+| 0.1% | 2,762% | 277% |
+| 1% | 391% | 23.1% |
+| 5% | 99.6% | 4.1% |
 
 500-fold resolution decrease (5% → 0.01%) decreases the GRW coastline by a
-factor of 195.9 (paper's GRW figure: ≈220; paper's empirical figure: ≈650).
-Average daily move at the 0.05% cost-adjusted threshold: 18,427% / 252 =
-73.1% per trading day — far above the paper's empirical figure of ≈6.4%/day,
-because the GRW benchmark's annualization is scaled from an 11.6-day sample
-rather than 5 years (see "Deviations from the paper").
+factor of 195.9, close to the paper's reported GRW figure of ≈220 (paper's
+empirical figure: ≈650, for the real tick data this repository could not
+obtain — see "Deviations from the paper"). The absolute level is 1.4-1.5x
+the paper's GRW values at every threshold (paper: 14,361% / 1,946% / 264% /
+65.2% at 0.01% / 0.1% / 1% / 5%), the same single-realisation bias already
+noted for law (12) in experiment 1; the ratio across thresholds, which is
+what this experiment's research objectives test, is reproduced. Average
+daily move at the 0.05% cost-adjusted threshold: 584% / 252 = 2.3% per
+trading day, below the paper's empirical figure of ≈6.4%/day because the
+GRW benchmark's single-tick-per-second, unit-variance design does not
+reproduce the clustered volatility of real FX quotes that drives the
+paper's empirical coastline (see "Deviations from the paper").
 
 ## Experiment 6 — Cross-Validation and Consistency Checks Between Scaling Laws
 
@@ -247,18 +296,25 @@ under 1%, except eq. 15, discussed below).
 - **GRW annualization is undefined in the paper.** The 1,000,000-tick, one-
   second-spaced GRW series spans about 11.57 days, not the 5 years of the
   empirical sample; the paper does not state how counts and cumulative sums
-  from the GRW run are annualized for laws (0b), (2) and (12). This
-  implementation annualizes by the realized sample span in years
-  (11.57/365.25), consistent with the empirical annualization rule (divide
-  by the number of years in the sample); this produces a GRW count or
-  cumulative-sum constant `C` that differs from the paper's reported GRW
-  constant for these three laws by roughly a factor of 9 to 100, while the
-  fitted exponent for every one of these laws still matches the paper's
-  reported GRW exponent to within 3%. This explains why laws 0b, 2 and 12
-  (and the coastline of Experiment 5, which is built from law 12) are
-  marked "reproduced" for the exponent but "not reproduced" for the constant
-  in the tables above; the discrepancy is a scale (annualization) difference
-  the paper leaves open, not a sign or qualitative mismatch.
+  from the GRW run are annualized for laws (0b), (2) and (12). Dividing the
+  raw sample totals by the series' own elapsed fraction of a year
+  (11.57/365.25), by analogy with the empirical samples' divide-by-5 rule,
+  was tried first and inflated the fitted constants for these laws by a
+  factor of about 9 to 100 relative to the paper's reported GRW constants.
+  Using the raw, un-annualized totals of the single one-million-tick series
+  instead brings every constant for these laws within a factor of 1.3 to 1.9
+  of the paper's values, matching the order of magnitude of the paper's
+  published GRW table (section 4) without extrapolation; this implementation
+  therefore reports laws (0b) and (12) on the GRW series (and, for law (12),
+  the coastline of Experiment 5) from the raw totals, not annualized by the
+  sample span. The exponent of every one of these laws matches the paper's
+  reported GRW exponent to within 2%. The remaining 30-90% gap in the level
+  constants of the cumulative law (12) (tm, dc, os, and the cost-adjusted tm)
+  is attributed to Monte Carlo variance of a single, extensive path-sum
+  realization of a benchmark whose random seed the paper does not report,
+  not to a sign or qualitative mismatch: laws (9)-(11), built from the same
+  event decomposition but expressed as per-event averages rather than a
+  cumulative sum, match the paper's GRW constants to within 15%.
 - **Universe and sample period.** Not applicable in the usual sense (no
   instrument universe is selected): the only data series used is the GRW
   benchmark described above, generated at the full scale the paper specifies

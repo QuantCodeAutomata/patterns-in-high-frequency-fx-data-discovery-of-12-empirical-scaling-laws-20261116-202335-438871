@@ -143,7 +143,7 @@ def run() -> None:
 
     # Cumulative total move with costs: section 2.3's constant 0.02% spread.
     costed_prices = apply_constant_spread(prices, config.GRW_SPREAD_PCT)
-    laws9_12_costs = laws_9_10_11_12_table(costed_prices, times_s, thresholds, tick_events, sample_years)
+    laws9_12_costs = laws_9_10_11_12_table(costed_prices, times_s, thresholds, tick_events, grw_count_divisor)
     fits["law_12_cum_tm_costs"] = fit_power_law(
         laws9_12_costs["threshold_pct"].to_numpy(), laws9_12_costs["cum_tm"].to_numpy()
     )
