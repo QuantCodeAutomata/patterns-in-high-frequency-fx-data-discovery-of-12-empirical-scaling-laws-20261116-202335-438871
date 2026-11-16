@@ -8,7 +8,7 @@ checks of Glattfelder, Dupuis & Olsen (arXiv:0809.1040), equations (14)-(17).
 (14b) The equivalent relationship between laws (0b) and (5):
          E_t,dc = -E_N,dc      and   C_t,dc = Y^(1/E_N,dc) * C_N,dc
 (15) Laws (0a) p=1 and (4) relate the fixed-time and fixed-threshold views:
-         E_t,x = 1 / E_x(1)    and   C_t,x = C_x(1)^(-E_t,x)
+         E_t,x = 1 / E_x(1)    and   C_t,x = C_x(1)^(-E_x(1))
 (16) Decomposition consistency: <|Delta x^*|> = Delta_x_cum^* / N(Delta_x_dc)
      for * in {tm, dc, os}.
 (17) Combined law from (0a p=1) and (1):
@@ -45,7 +45,7 @@ def check_14(E_Nx: float, C_Nx: float, seconds_per_year: float, E_tx: float, C_t
 def check_15(E_x1: float, C_x1: float, E_tx: float, C_tx: float):
     """Laws (0a p=1) and (4)."""
     E_pred = 1.0 / E_x1
-    C_pred = C_x1 ** (-E_pred)
+    C_pred = C_x1 ** (-E_x1)
     return (
         ConsistencyResult(E_pred, E_tx, _rel_error(E_tx, E_pred)),
         ConsistencyResult(C_pred, C_tx, _rel_error(C_tx, C_pred)),

@@ -31,11 +31,18 @@ def sample_last_price(
 
 
 def mean_abs_change_p(sampled_prices: np.ndarray, p: int) -> float:
-    """<|Delta x|>_p = (1/n * sum |Delta x_i|^p)^(1/p), law (0a)."""
+    """<|Delta x|>_p = (1/n * sum |Delta x_i|^p)^(1/p), law (0a).
+
+    Returned in the same percent-number convention as every threshold grid
+    in this project (``threshold_pct=0.01`` denotes a 0.01% move): the raw
+    relative change is multiplied by 100, so this value is directly
+    comparable with (and combinable into, eq. 17) the other scaling laws'
+    Delta_x axis.
+    """
     if sampled_prices.shape[0] < 2:
         raise ValueError("need at least 2 samples")
-    rel_change = np.diff(sampled_prices) / sampled_prices[:-1]
-    return float(np.mean(np.abs(rel_change) ** p) ** (1.0 / p))
+    rel_change_pct = 100.0 * np.diff(sampled_prices) / sampled_prices[:-1]
+    return float(np.mean(np.abs(rel_change_pct) ** p) ** (1.0 / p))
 
 
 @njit(cache=True)
@@ -70,7 +77,7 @@ def _rolling_max_range(prices: np.ndarray, times: np.ndarray, dt_seconds: float,
             found = True
             jj += 1
         if found and base > 0:
-            rng = (hi - lo) / base
+            rng = 100.0 * (hi - lo) / base
             out[k] = rng**p
         else:
             out[k] = np.nan

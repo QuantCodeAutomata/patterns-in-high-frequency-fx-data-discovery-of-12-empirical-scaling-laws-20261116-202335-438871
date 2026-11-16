@@ -28,6 +28,21 @@ from src.scaling_laws import PowerLawFit, fit_power_law
 from src.time_sampling import mean_abs_change_p, mean_max_range_p, sample_last_price
 
 
+def sample_years_from_times(times: np.ndarray, seconds_per_year: float) -> float:
+    """Elapsed time of the series expressed in years, used as the
+    annualisation divisor for laws (0b), (2) and (12).
+
+    Section 3.1 annualises the 5-year empirical sample by dividing by 5; the
+    general form used here divides by the series' own elapsed time so the
+    same code annualises both the paper's 5-year FX sample and a
+    shorter-lived series (e.g. the Gaussian random walk benchmark of
+    eq. 18, section 4, whose unitary one-second ticks span about 11.6 days)
+    to the same "events or price move per year" rate.
+    """
+    span_seconds = float(times[-1] - times[0])
+    return span_seconds / seconds_per_year
+
+
 def reference_tick_events(prices: np.ndarray, times: np.ndarray, tick_threshold_pct: float) -> dict:
     """Algorithm 1 run at the law-defined tick threshold (0.02%, section 3.2),
     used by every function below that needs to count "ticks" inside a
@@ -49,6 +64,13 @@ def law_0b_5_table(
             rows.append({"threshold_pct": thr, "n_dc_raw": n_events,
                           "n_dc_annualized": np.nan, "mean_dt_dc": np.nan})
             continue
+        # <Delta t_dc> (law 5) is the time between consecutive directional-
+        # change confirmations D_k -> D_{k+1}. In a long, stationary series
+        # this converges to the same average as the tm-cycle time
+        # E_{k-1} -> E_k (each D_k->D_{k+1} gap is OS_k + DC_{k+1}, and
+        # stationarity makes E[OS_k] + E[DC_{k+1}] ~ E[OS] + E[DC] = E[TM]),
+        # matching the paper's GRW table where law (5) sits next to law (10)
+        # tm, not law (10) dc.
         dt = np.diff(ev["event_time"])
         rows.append({
             "threshold_pct": thr,

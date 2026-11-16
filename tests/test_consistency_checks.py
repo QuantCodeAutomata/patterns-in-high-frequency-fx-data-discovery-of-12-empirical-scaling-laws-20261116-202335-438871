@@ -26,7 +26,7 @@ def test_check_14_recovers_exact_relationship_by_construction():
 def test_check_15_recovers_exact_relationship_by_construction():
     E_x1, C_x1 = 0.497, 6.632e5
     E_tx = 1.0 / E_x1
-    C_tx = C_x1 ** (-E_tx)
+    C_tx = C_x1 ** (-E_x1)
     e_res, c_res = check_15(E_x1, C_x1, E_tx, C_tx)
     assert e_res.rel_error == pytest.approx(0.0, abs=1e-9)
     assert c_res.rel_error == pytest.approx(0.0, abs=1e-9)

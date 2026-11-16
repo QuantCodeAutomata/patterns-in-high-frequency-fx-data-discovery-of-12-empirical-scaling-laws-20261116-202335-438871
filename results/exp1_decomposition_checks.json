@@ -1,0 +1,9 @@
+{
+  "threshold_pct_used": 0.49388783970366573,
+  "mean_abs_tm": 0.9901966287139908,
+  "mean_abs_dc": 0.5018487100093464,
+  "mean_abs_os": 0.48833905811324,
+  "tm_over_2x_threshold": 1.0024509100164443,
+  "os_over_threshold": 0.9887650977724922,
+  "decomposition_tm_minus_dc_plus_os": 8.860591404480367e-06
+}

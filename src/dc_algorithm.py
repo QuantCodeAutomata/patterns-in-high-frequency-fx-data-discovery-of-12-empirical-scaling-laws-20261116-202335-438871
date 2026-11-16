@@ -163,8 +163,15 @@ def decompose_segments(events: dict) -> dict:
     if n < 2:
         return {k: (empty_i if "tick" in k else empty_f) for k in fields}
 
+    # Price moves are expressed in percent, on the same scale as Delta_x_dc
+    # (section 3.3's Y = (Delta_x_dc / C)^E fits and eq. 9's C_{x,*}
+    # constants, which are of order 1, not of order the raw price level).
+    # Each move is relative to the pivot price from which Algorithm 2 itself
+    # measured that segment's threshold crossing: E_{k-1} for DC_k, D_k for
+    # OS_k (Algorithm 2 resets x_ext to the event price when it fires).
+
     # DC_k spans (E_{k-1} tick, D_k tick], k = 1..n.
-    dc_move = np.abs(event_price - prior_price)
+    dc_move = 100.0 * np.abs(event_price - prior_price) / prior_price
     dc_time = event_time - prior_time
     dc_start_tick = prior_tick
     dc_end_tick = event_tick
@@ -178,7 +185,7 @@ def decompose_segments(events: dict) -> dict:
     d_k_tick = event_tick[:-1]
 
     # OS_k spans (D_k tick, E_k tick], k = 1..n-1.
-    os_move = np.abs(e_k_price - d_k_price)
+    os_move = 100.0 * np.abs(e_k_price - d_k_price) / d_k_price
     os_time = e_k_time - d_k_time
     os_start_tick = d_k_tick
     os_end_tick = e_k_tick
