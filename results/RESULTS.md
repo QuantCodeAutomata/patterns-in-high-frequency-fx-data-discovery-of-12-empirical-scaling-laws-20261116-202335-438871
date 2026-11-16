@@ -262,7 +262,20 @@ The eq. (17) combined law predicts a 0.02% tick every 3.49 seconds, close to
 the 3.98 seconds law (4) gives directly for the same move size — consistent
 to within the fitting error the paper itself reports for this check. All
 other cross-checks reproduce the paper's claimed consistency (errors well
-under 1%, except eq. 15, discussed below).
+under 1%), except eq. (15), which links law (4) to law (0a p=1): the
+predicted exponent is `-1/E_x(1)`, where `E_x(1)` is fit on fixed time
+windows from 20 seconds up to a quarter of the sample span (experiment 3),
+while the directly measured `E_{t,x}` is fit on event thresholds from 0.01%
+to 5.05% (experiment 2) — a different variable and a different range from
+the one `E_x(1)` is estimated over. Applying the same eq. (15) formula to
+the paper's own published GRW values (`E_x(1) = 0.510`, `E_{t,x} = 1.864`,
+section 4) gives a predicted exponent of 1.961, a 5.19% gap from the
+paper's own measured value, close to this implementation's 6.77% gap
+(`1.975` predicted vs. `1.841` measured, `exp6_consistency_checks.json`).
+Because the paper's own GRW table
+already shows a comparable gap for this specific check, it is attributed to
+the inherent mismatch between the two measurement regimes eq. (15)
+combines, not to a defect in either fitted law.
 
 ## Deviations from the paper
 
