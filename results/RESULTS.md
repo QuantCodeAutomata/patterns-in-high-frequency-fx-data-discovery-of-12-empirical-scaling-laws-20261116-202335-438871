@@ -70,7 +70,15 @@ affected row is biased in the same direction and by a similar factor, which
 is the signature of a single realisation of a stochastic benchmark (the
 paper does not state the random seed of its own GRW run) rather than of a
 broken relation, but the size of the gap still places it outside the
-"partially reproduced" band.
+"partially reproduced" band. A sensitivity check across five independent GRW
+seeds confirms this: the fitted law-(12) exponent stays within 1.5% across
+seeds (`E_tm` from -0.849 to -0.827), while the fitted constants swing by
+30-100% (`C_tm` from 1,128 to 1,459; `C_os` from 359 to 713) because the
+cumulative sum of a one-million-tick path is dominated by a handful of large
+moves at the coarsest thresholds, so its sampling variance is far larger than
+that of a ratio-based constant such as law (9)'s. The law-(12) gap is
+therefore attributed to single-path Monte Carlo variance, not to a
+mis-specified relation.
 
 Decomposition checks (`exp1_decomposition_checks.json`, at the median
 threshold Δx_dc ≈ 0.494%, all divisor-independent): `⟨|Δx^tm|⟩ /
